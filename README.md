@@ -1,0 +1,1 @@
+# MPox_Publishing_Version
