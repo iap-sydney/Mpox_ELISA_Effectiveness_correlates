@@ -16,16 +16,20 @@ data {
 }
 
 // This model consists of a base infection rate, r, for each group.
-// 
+// And an auxillary parameter,A, for the effectiveness fo consistency in analysis
+// A=exp(R_v)
 parameters {
   real<lower=0,upper=1> r[num_groups];
-  real A[num_studies];
+  real<lower=0,upper=1> A[num_studies];
 }
 
+//Transform A parameters into model parameters
+//V=R_v
+//r_dose=r_i,v,s
 transformed parameters{
   vector[num_studies] V;
   for (i in 1:num_studies){
-    V[i]=log(inv_logit(A[i]));
+    V[i]=log(A[i]);
   }
   vector<upper=1>[J] r_dose;
   for (i in 1:J){
@@ -37,21 +41,9 @@ transformed parameters{
   }
 }
 
-// The model to be estimated. We model the output
-// 'y' to be normally distributed with mean 'mu'
-// and standard deviation 'sigma'.
+// Fit the binomial model with relevant priors.
 model {
   num_cases ~ binomial(Num_pop, r_dose);
-  A ~ logistic(0,1);
+  A ~ uniform(0,1);
   r ~ beta(1,1);
 }
-
-generated quantities {
-  vector[J] log_lik;
-  {
-    for (i in 1:J){
-      log_lik[i]=binomial_lpmf(num_cases[i]|Num_pop[i],r_dose[i]);
-    }
-  }
-}
-
