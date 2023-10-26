@@ -14,13 +14,13 @@ df_eff<-read_csv('Output/Data/Eff.csv',show_col_types = FALSE) %>%
 
 datatab <- read_csv("Output/Data/ELISA_full_set_update.csv",show_col_types = FALSE)%>%
   mutate(ELISA=replace_na(ELISA,0))%>%
-  mutate_at(c('Vaccine','Study','Formulation'),as.factor)
+  mutate_at(c('Vaccine','Study','Formulation','Dose'),as.factor)
 
 
 # Fit the logistic model to both datasets ---------------------------------
 
 #Generate random sample used for evaluating expectations quickly
-sample_size=1000
+sample_size=100
 sample=rnorm(sample_size)
 
 # Define the model data
@@ -32,7 +32,7 @@ data <- list(
   num_studies=nlevels(datatab$Study),
   num_form=nlevels(datatab$Formulation),
   study_ind=as.integer(datatab$Study),
-  dose_ind=as.integer(datatab$Vaccine),
+  dose_ind=as.integer(datatab$Dose),
   form_ind=as.integer(datatab$Formulation),
   J = nrow(df_eff),
   Num_pop = df_eff$Pop,
@@ -49,7 +49,7 @@ data <- list(
 
 #Fit the logistic model
 full_fit <- stan(
-  file = "Stan/efficacy_model.stan",  # Stan program
+  file = "Stan/lofgistic_model.stan",  # Stan program
   data = data,    # named list of data
   chains = 4,             # number of Markov chains
   warmup = warmup,          # number of warmup iterations per chain
