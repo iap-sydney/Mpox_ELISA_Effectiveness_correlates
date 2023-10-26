@@ -89,8 +89,8 @@ data2 <- list(
   num_cases=df_data$Case,
   num_groups=nlevels(df_data$group),
   group_ind=as.integer(df_data$group),
-  num_vaccines=nlevels(df_data$Indiv)-1,
-  Vaccine_ind=as.integer(df_data$Indiv)
+  num_studies=nlevels(df_data$Indiv)-1,
+  study_ind=as.integer(df_data$Indiv)
 )
 
 #Run RStan Model

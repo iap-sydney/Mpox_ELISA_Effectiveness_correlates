@@ -27,7 +27,7 @@ data {
 parameters {
   real<lower=0,upper=1> r[num_groups];
   real p_s[num_vacc_studies];
-  real<upper=0> A[num_vaccines];
+  real A[num_vaccines];
   real<lower=0> sigma;
 }
 

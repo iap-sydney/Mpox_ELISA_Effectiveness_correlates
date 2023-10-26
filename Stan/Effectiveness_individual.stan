@@ -1,41 +1,36 @@
 //
-// This Stan program defines a simple model, with a
-// vector of values 'y' modeled as normally distributed
-// with mean 'mu' and standard deviation 'sigma'.
-//
-// Learn more about model development with Stan at:
-//
-//    http://mc-stan.org/users/interfaces/rstan.html
-//    https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
+// This Stan program defines a model for comupting the effectiveness
+// of multiple studies vaccines individually
 //
 
-// The input data is a vector 'y' of length 'N'.
+// The input data consists of vectors of case and population. 
+// Included is the disaggragation index (group_ind) and study index (study_ind)
 data {
   int J;
   int num_cases[J];
   int Num_pop[J];
   int num_groups;
   int group_ind[J];
-  int num_vaccines;
-  int Vaccine_ind[J];
+  int num_studies;
+  int study_ind[J];
 }
 
-// The parameters accepted by the model. Our model
-// accepts two parameters 'mu' and 'sigma'.
+// This model consists of a base infection rate, r, for each group.
+// 
 parameters {
   real<lower=0,upper=1> r[num_groups];
-  real<upper=0> A[num_vaccines];
+  real A[num_studies];
 }
 
 transformed parameters{
-  vector[num_vaccines] V;
-  for (i in 1:num_vaccines){
+  vector[num_studies] V;
+  for (i in 1:num_studies){
     V[i]=log(inv_logit(A[i]));
   }
   vector<upper=1>[J] r_dose;
   for (i in 1:J){
-    if (Vaccine_ind[i]<num_vaccines+1){
-      r_dose[i]=inv_logit(logit(r[group_ind[i]])+V[Vaccine_ind[i]]);
+    if (study_ind[i]<num_studies+1){
+      r_dose[i]=inv_logit(logit(r[group_ind[i]])+V[study_ind[i]]);
     } else {
       r_dose[i]=r[group_ind[i]];
     }
