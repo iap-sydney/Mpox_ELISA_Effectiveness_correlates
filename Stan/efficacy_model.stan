@@ -1,13 +1,10 @@
 //
-// This Stan program defines a simple model, with a
-// vector of values 'y' modeled as normally distributed
-// with mean 'mu' and standard deviation 'sigma'.
+// This program fits a logistic model to the effectiveness  and immunogenicity
+// data. A more in depth description of each section can be found in either 
+// Effectiveness combined or Immunogenicity model for aspects relating to each
 //
-// Learn more about model development with Stan at:
-//
-//    http://mc-stan.org/users/interfaces/rstan.html
-//    https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
-//
+
+// Define the logistic function used to compute the expectation
 functions{
   real eff(real mu,real k,real A,real sigma,vector sample){
         return mean(pow(1+exp((sample*sigma+mu-2.5)*(-k)-A),-1));
@@ -33,14 +30,17 @@ data {
   int Num_pop[J];
   int num_groups;
   int group_index[J];
-  int num_2dose;
   int num_vaccines;
   int Vaccine_ind[J];
   int num_vacc_studies;
   int vacc_study_ind[J];
-  vector[5000] sample;
+  
+  //miscellaneous sample
+  int sample_size;
+  vector[sample_size] sample;
 }
 
+//Transform the immunigenicity data
 transformed data{
   vector[N] S_n;
   vector[N] n_n_1;
@@ -49,22 +49,25 @@ transformed data{
     S_n[j]=(n_n_1[j])*pow(s_n[j],2);
   }
 }
-// The parameters accepted by the model. Our model
-// accepts two parameters 'mu' and 'sigma'.
+// The model parameters.
 parameters {
+  //immunogenicity model
   vector[num_studies] mu_j;
   real mu_f;
   vector[num_vaccines] mu_d;
   vector<lower=0>[num_vaccines] sigma_d;
-  real<lower=0> sigma_s;
+  // Logistic Curve parameters
   real<lower=0> k;
   real A;
+  // Effectiveness parameters
+  real<lower=0> sigma_s;
   real<lower=0,upper=1> r[num_groups];
   real p_s[num_vacc_studies];
   real<lower=0> sigma;
 }
-
+// Transformed parameters
 transformed parameters{
+  //Immunogenicity Parameters
   vector[N] mu_n;
   vector[N] X_n;
   vector[N] se_n;
@@ -79,11 +82,12 @@ transformed parameters{
       mu_n[i]=mu_j[study_ind[i]]+mu_d[dose_ind[i]];
     }
   }
+  // Protection using logistic function
   vector[num_vaccines] V;
-  //V=log(1-pow(1+exp(-(mu_d-2.5)*k-A),-1));
   for (i in 1:num_vaccines){
     V[i]=log(1-eff(mu_d[i],k,A,sigma_d[i],sample));
   }
+  // Effectiveness parameters
   vector<upper=1>[J] r_dose;
   for (i in 1:J){
     if (Vaccine_ind[i]<4){
@@ -94,10 +98,9 @@ transformed parameters{
   }
 }
 
-// The model to be estimated. We model the output
-// 'y' to be normally distributed with mean 'mu'
-// and standard deviation 'sigma'.
+// Fitting the model.
 model {
+  // Immunogenicity data
   y_n ~ normal(mu_n,se_n);
   mu_d ~ normal (0,10);
   sigma_d ~ lognormal(0,10);
@@ -105,26 +108,13 @@ model {
   sigma_s ~ cauchy(0,1);
   X_n ~ chi_square(n_n_1);
   mu_f ~ normal(0,1);
+  // Effectiveness Data
   num_cases ~ binomial(Num_pop, r_dose);
   p_s ~ normal(0,sigma);
-  k ~ normal(0,10);
-  A ~ logistic(0,1);
   sigma ~ cauchy(0,0.25);
   r ~ beta(1,1);
+  // Priors on logistic curve
+  k ~ normal(0,10);
+  A ~ logistic(0,1);
 }
 
-
-generated quantities {
-  vector[J] log_lik;
-  //vector[num_vacc_studies] log_lik;
-  {
-    for (i in 1:J){
-      log_lik[i]=binomial_lpmf(num_cases[i]|Num_pop[i],r_dose[i]);
-    }
-    //for (i in 1:num_vacc_studies){
-    //log_lik[i]=normal_lpdf(p_s[i]|0,sigma);
-    //}
-  }
-  int sim_cases[J];
-  sim_cases=binomial_rng(Num_pop,r_dose);
-}
