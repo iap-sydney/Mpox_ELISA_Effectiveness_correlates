@@ -34,3 +34,33 @@ ggsave('Output/Figures/Supp_fixed_effects.jpg',
 ggsave('Output/Figures/Supp_fixed_effects.eps',
        plot = plot_FE,
        width=6,height=3,dpi=1000)
+
+
+# FigS4 -------------------------------------------------------------------
+
+summary_decay<-read_csv('Output/Figure4/summary_decay.csv')%>%
+  mutate_at(c('Number of MVA Doses','alpha_val'),as.factor)
+plot_prop<-ggplot(data=summary_decay,aes(color=`Number of MVA Doses`,x=`Final Dose Day`,alpha=alpha_val)) +
+  geom_point(aes(y=percent),position=position_dodge2(width=0.1),size=3) +
+  geom_errorbar(aes(ymin=p_LCI,ymax=p_UCI),position=position_dodge2(width=10,preserve='single'),size=0.8) +
+  ylab('Percentage of slow decay antibodies (%)') +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_continuous(trans = 'log10',
+                     breaks=c(1,7,28,730),
+                     labels=c('0','7','28','730'))+
+  scale_color_manual('Number of\nMVA-BN Doses',
+                     breaks=c('0','1','2'),
+                     values=colD,
+                     labels=c('1-Dose','2-Doses','3-Doses')) +
+  scale_alpha_manual(breaks=c('0','1'),
+                     values=c(0.5,1),
+                     guide='none') +
+  theme_classic()+
+  theme(axis.text = element_text(size=10),
+        axis.title = element_text(size=12),
+        legend.text=element_text(size=10),
+        legend.title = element_text(size=12))
+
+ggsave('Output//Figures//Percentage_longterm.jpg',
+       plot=summary_decay,
+       width=5,height=4,dpi=1000)
