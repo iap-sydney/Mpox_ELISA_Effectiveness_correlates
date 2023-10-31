@@ -49,7 +49,7 @@ data <- list(
 
 #Fit the logistic model
 full_fit <- stan(
-  file = "Stan/lofgistic_model.stan",  # Stan program
+  file = "Stan/logistic_model.stan",  # Stan program
   data = data,    # named list of data
   chains = 4,             # number of Markov chains
   warmup = warmup,          # number of warmup iterations per chain
