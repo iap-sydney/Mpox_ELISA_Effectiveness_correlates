@@ -45,10 +45,12 @@ ggsave('Output//Figure1//Fig1A.pdf',
 
 # Create Figure 1B --------------------------------------------------------
 #load Study relative efficacy data
-Retib<-read_csv('Output/Figure1/REtib.csv')
+REtib<-read_csv('Output/Figure1/REtib.csv')%>%
+  mutate(Vaccine='\n')
 
 #load Combined RE data
-REquant<-read_csv('Output/Figure1/RE_comb.csv')
+REquant<-read_csv('Output/Figure1/RE_comb.csv')%>%
+  mutate(Vaccine='\n')
 
 #Create plot
 plot_RE<-ggplot(REtib,aes(x=Vaccine,y=X2,ymin=X1,ymax=X3,shape=Study,color=Study))+

@@ -3,6 +3,18 @@
 #Run Setup script
 source('Setup.R')
 
+#Create Output Folders
+create_folders=TRUE
+if (create_folders){
+  dir.create('Output/Data')
+  dir.create('Output/Samples')
+  dir.create('Output/Figure1')
+  dir.create('Output/Figure2')
+  dir.create('Output/Figure3')
+  dir.create('Output/Figure4')
+  dir.create('Output/Figures')
+}
+
 # Process raw data into usable format
 source('Processing/01_process-eff-data.R')
 source('Processing/02_process-immune-data.R')
@@ -22,5 +34,9 @@ if (Analysis){
 Figures=TRUE
 
 if (Figures){
+  source('Analysis/06_Figure-1.R')
+  source('Analysis/06_Figure-2.R')
   source('Analysis/06_Figure-3.R')
+  source('Analysis/06_Figure-4.R')
+  source('Analysis/07_Supplemetary-Figures.R')
 }

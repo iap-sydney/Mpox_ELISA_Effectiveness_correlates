@@ -15,6 +15,10 @@ library(nleqslv)
 # Global Parameters -------------------------------------------------------
 source('R_functions/decay_titer.R')
 
+#Specify Stan sampling parameters
+warmup<-2000
+sampling<-7000
+
 
 # Define Colors used in figures -------------------------------------------
 colD<-c("dodgerblue2","mediumpurple3","darkorange2")

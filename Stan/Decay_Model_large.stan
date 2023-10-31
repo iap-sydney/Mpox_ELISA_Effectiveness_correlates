@@ -10,10 +10,7 @@
 //
 
 functions {
-  real decay_linear(real time,real k1,real k2, real tc){
-    return -k1*time-(k2-k1)*(abs(time-tc)+time-tc)/2;
-  }
-  real decay_exp(real time,real k1,real k2, real f){
+  real decay_fun(real time,real k1,real k2, real f){
     return log10(f*exp(-k1*time)+(1-f)*exp(-k2*time));
   }
 }
@@ -60,9 +57,9 @@ transformed parameters{
     se_n[i]=sigma_d[dose_ind[i]]*pow(n_n[i],-0.5);
     X_n[i]=S_n[i]/pow(sigma_d[dose_ind[i]],2);
     if (form_ind[i]==1){
-      mu_n[i]=mu_j[study_ind[i]]+mu_d[dose_ind[i]]+decay_exp(time[i],decay1[dose_ind[i]],decay2[dose_ind[i]],tc[dose_ind[i]]);
+      mu_n[i]=mu_j[study_ind[i]]+mu_d[dose_ind[i]]+decay_fun(time[i],decay1[dose_ind[i]],decay2[dose_ind[i]],tc[dose_ind[i]]);
     } else {
-      mu_n[i]=mu_j[study_ind[i]]+mu_d[dose_ind[i]]+mu_f+decay_exp(time[i],decay1[dose_ind[i]],decay2[dose_ind[i]],tc[dose_ind[i]]);
+      mu_n[i]=mu_j[study_ind[i]]+mu_d[dose_ind[i]]+mu_f+decay_fun(time[i],decay1[dose_ind[i]],decay2[dose_ind[i]],tc[dose_ind[i]]);
     } 
   }
 }

@@ -6,16 +6,18 @@
 #Load immunogenicity Data 
 datatab <- read_csv("Output/Data/ELISA_full_set_update.csv",show_col_types = FALSE)%>%
   mutate(ELISA=replace_na(ELISA,0),
-         Dose=if_else(Dose=='Historic Vaccination','1st Gen',Dose),
-         col_group=paste(Dose,Formulation))%>%
+         col_group=paste(Dose,Formulation),
+         Dose=if_else(Dose=='Historic Vaccination','1st Gen',Dose))%>%
   mutate_at(c('col_group','Formulation','Study','ELISA','Dose'),as.factor)
 
 #Load Estimated Means
-mean_quants<-read_csv('Output/Figure2/Indiv_eff.csv')
+mean_quants<-read_csv('Output/Figure2/Indiv_eff.csv')%>%
+  mutate(Dose=if_else(Dose=='Historic Vaccination First Generation',
+                      '1st Gen',Dose))
 
 # Plot Figures ------------------------------------------------------------
 #Define Colours
-colForm<-c('darkorange2','dodgerblue','dodgerblue4','mediumpurple','mediumpurple4')
+colForm<-c('darkorange2','darkorange2','dodgerblue','dodgerblue4','mediumpurple','mediumpurple4')
 
 #Create Plot
 plot_immunogenicity<-ggplot(datatab,aes(x=label,y=GMT,shape=ELISA,color=col_group,group=Arm)) +
@@ -33,21 +35,21 @@ plot_immunogenicity<-ggplot(datatab,aes(x=label,y=GMT,shape=ELISA,color=col_grou
   scale_y_continuous(trans='log10') +
   scale_x_discrete(guide = guide_axis(angle = 65))+
   theme(strip.background = element_blank(),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14),
+        axis.text=element_text(size=10),
+        axis.title=element_text(size=12),
         axis.title.x = element_blank(),
-        legend.text=element_text(size=12),
-        legend.title=element_text(size=14),
-        strip.text = element_text(size=14))+
+        legend.text=element_text(size=10),
+        legend.title=element_text(size=12),
+        strip.text = element_text(size=12))+
   guides(color='none')
 
 #Save Figure
 ggsave('Output//Figure2//Fig2.jpg',
        plot=plot_immunogenicity,
-       width=10,height=6,dpi=2000)
+       width=8,height=4.5,dpi=2000)
 ggsave('Output//Figure2//Fig2.eps',
        plot=plot_immunogenicity,
-       width=10,height=6,dpi=2000)
+       width=8,height=4.5,dpi=2000)
 ggsave('Output//Figure2//Fig2.pdf',
        plot=plot_immunogenicity,
-       width=10,height=6,dpi=2000)
+       width=8,height=4.5,dpi=2000)
