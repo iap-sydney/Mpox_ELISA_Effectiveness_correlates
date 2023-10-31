@@ -17,7 +17,7 @@ mean_quants<-read_csv('Output/Figure2/Indiv_eff.csv')%>%
 
 # Plot Figures ------------------------------------------------------------
 #Define Colours
-colForm<-c('darkorange2','darkorange2','dodgerblue','dodgerblue4','mediumpurple','mediumpurple4')
+colForm<-c('darkorange2','dodgerblue','dodgerblue4','mediumpurple','mediumpurple4','darkorange2')
 
 #Create Plot
 plot_immunogenicity<-ggplot(datatab,aes(x=label,y=GMT,shape=ELISA,color=col_group,group=Arm)) +
@@ -38,6 +38,7 @@ plot_immunogenicity<-ggplot(datatab,aes(x=label,y=GMT,shape=ELISA,color=col_grou
         axis.text=element_text(size=10),
         axis.title=element_text(size=12),
         axis.title.x = element_blank(),
+        legend.position = c(0.88,0.25),
         legend.text=element_text(size=10),
         legend.title=element_text(size=12),
         strip.text = element_text(size=12))+
