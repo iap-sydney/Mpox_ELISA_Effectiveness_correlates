@@ -11,7 +11,7 @@ plot_ELISA <- ggplot(df_formulation,aes(x=`samples_ELISA.mu_f`))+
   ylab('Posterior Density')+
   xlab(TeX('ELISA fixed effect, $y_E$'))
 
-ggsave('Output//Figures//Elisa_effect.png',width=10,height=5)
+ggsave('Output//Figures//Sup_S3a.png',width=10,height=5)
 
 
 # Fig S3B -----------------------------------------------------------------
@@ -22,16 +22,16 @@ plot_formulation <- ggplot(df_formulation,aes(x=Formulation))+
   ylab('Posterior Density')+
   xlab(TeX('Formulation fixed effect, $y_f$'))
 
-ggsave('Output//Figures//formulation_effect.png',width=10,height=5)
+ggsave('Output//Figures//Sup_S3b.png',width=10,height=5)
 
 
 # Fig S3 ------------------------------------------------------------------
 
 plot_FE<-ggarrange(plot_ELISA,plot_formulation,labels=c("A",'B'))
-ggsave('Output/Figures/Supp_fixed_effects.jpg',
+ggsave('Output/Figures/Supp_S3.jpg',
        plot = plot_FE,
        width=6,height=3,dpi=1000)
-ggsave('Output/Figures/Supp_fixed_effects.eps',
+ggsave('Output/Figures/Supp_S3.pdf',
        plot = plot_FE,
        width=6,height=3,dpi=1000)
 
@@ -61,6 +61,9 @@ plot_prop<-ggplot(data=summary_decay,aes(color=`Number of MVA Doses`,x=`Final Do
         legend.text=element_text(size=10),
         legend.title = element_text(size=12))
 
-ggsave('Output//Figures//Percentage_longterm.jpg',
+ggsave('Output//Figures//supp_4.jpg',
+       plot=summary_decay,
+       width=5,height=4,dpi=1000)
+ggsave('Output//Figures//supp_4.pdf',
        plot=summary_decay,
        width=5,height=4,dpi=1000)
