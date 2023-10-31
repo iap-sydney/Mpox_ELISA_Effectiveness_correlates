@@ -164,10 +164,10 @@ decay_model_full<-ggarrange(plot_decay,plot_decay_base,plot_longterm,
                             labels=c("A","","D"),
                             nrow=3)
 show(decay_model_full)
-ggsave('Output/Figures/Manuscript_decay_full.jpg',
+ggsave('Output/Figure4/Manuscript_decay_full.jpg',
        plot=decay_model_full,
        height=11,width=9,dpi=600)
-ggsave('Output/Figures/Manuscript_decay_full.eps',
+ggsave('Output/Figure4/Manuscript_decay_full.eps',
        plot=decay_model_full,
        height=11,width=9,dpi=600)
 

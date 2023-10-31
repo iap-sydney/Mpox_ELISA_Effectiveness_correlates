@@ -62,9 +62,9 @@ logistic_plot<-ggplot(eff_df,aes(x=GMT,y=median,color=Vaccine)) +
         )
 
 #Save Figure
-ggsave("Output//Figures//Logistic_curve_fit.jpg",
+ggsave("Output//Figure3//Logistic_curve_fit.jpg",
        plot=logistic_plot,
        width=5,height=4,dpi=1000)
-ggsave("Output//Figures//Logistic_curve_fit.pdf",
+ggsave("Output//Figure3//Logistic_curve_fit.pdf",
        plot=logistic_plot,
        width=5,height=4,dpi=1000)
