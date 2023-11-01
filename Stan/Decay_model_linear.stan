@@ -62,7 +62,7 @@ model {
   y_n ~ normal(mu_n,se_n);
   mu_d ~ normal (0,10);
   sigma_d ~ lognormal(0,10);
-  mu_j ~ normal (0,sigma_s));
+  mu_j ~ normal (0,sigma_s);
   sigma_s ~ cauchy(0,1);
   X_n ~ chi_square(n_n_1);
   mu_f ~ normal(0,1);
