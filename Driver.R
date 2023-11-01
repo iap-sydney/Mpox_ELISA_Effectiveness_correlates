@@ -4,15 +4,15 @@
 source('Setup.R')
 
 #Create Output Folders
-create_folders=TRUE
+create_folders= !file.exists('Output/Figures')
 if (create_folders){
-  dir.create('Output/Data')
-  dir.create('Output/Samples')
-  dir.create('Output/Figure1')
-  dir.create('Output/Figure2')
-  dir.create('Output/Figure3')
-  dir.create('Output/Figure4')
-  dir.create('Output/Figures')
+  dir.create('Output/Data',recursive = TRUE)
+  dir.create('Output/Samples',recursive = TRUE)
+  dir.create('Output/Figure1',recursive = TRUE)
+  dir.create('Output/Figure2',recursive = TRUE)
+  dir.create('Output/Figure3',recursive = TRUE)
+  dir.create('Output/Figure4',recursive = TRUE)
+  dir.create('Output/Figures',recursive = TRUE)
 }
 
 # Process raw data into usable format
