@@ -1,12 +1,7 @@
 //
-// This Stan program defines a simple model, with a
-// vector of values 'y' modeled as normally distributed
-// with mean 'mu' and standard deviation 'sigma'.
-//
-// Learn more about model development with Stan at:
-//
-//    http://mc-stan.org/users/interfaces/rstan.html
-//    https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
+// This Stan program defines an extended decay model with different decay rates 
+// for each regimen used. Where code overlaps with Decay_model.stan, description
+// is provided in Decat_model.stan
 //
 
 functions {
@@ -14,7 +9,7 @@ functions {
     return log10(f*exp(-k1*time)+(1-f)*exp(-k2*time));
   }
 }
-// The input data is a vector 'y' of length 'N'.
+
 data {
   int N;
   vector[N] y_n;
@@ -28,6 +23,7 @@ data {
   int dose_ind[N];
   vector[N] form_ind;
 }
+
 transformed data{
   vector[N] S_n;
   vector[N] n_n_1;
@@ -36,17 +32,16 @@ transformed data{
     S_n[j]=(n_n_1[j])*pow(s_n[j],2);
   }
 }
-// The parameters accepted by the model. Our model
-// accepts two parameters 'mu' and 'sigma'.
+
 parameters {
-  real<lower=0> decay1[num_doses];
+  real<lower=0> decay1[num_doses];              // Decay rate per vaccination schedule
   real<lower=0,upper=decay1> decay2[num_doses];
   real<lower=0,upper=1> tc[num_doses];
   vector[num_studies] mu_j;
   real mu_f;
   vector[num_doses] mu_d;
   vector<lower=0>[num_doses] sigma_d;
-  real<lower=0> var_s;
+  real<lower=0> sigma_s;
 }
 
 transformed parameters{
@@ -64,15 +59,13 @@ transformed parameters{
   }
 }
 
-// The model to be estimated. We model the output
-// 'y' to be normally distributed with mean 'mu'
-// and standard deviation 'sigma'.
+
 model {
   y_n ~ normal(mu_n,se_n);
   mu_d ~ normal (0,10);
   sigma_d ~ lognormal(0,10);
-  mu_j ~ normal (0,pow(var_s,0.5));
-  var_s ~ inv_gamma(1,1);
+  mu_j ~ normal (0,sigma_s));
+  sigma_s ~ cauchy(0,1);
   X_n ~ chi_square(n_n_1);
   mu_f ~ normal(0,1);
   decay1~normal(0,1);

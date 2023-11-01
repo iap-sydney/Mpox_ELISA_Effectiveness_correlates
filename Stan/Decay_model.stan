@@ -1,61 +1,61 @@
 //
-// This Stan program defines a simple model, with a
-// vector of values 'y' modeled as normally distributed
-// with mean 'mu' and standard deviation 'sigma'.
-//
-// Learn more about model development with Stan at:
-//
-//    http://mc-stan.org/users/interfaces/rstan.html
-//    https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
+// This Stan program contains the primary stan model for modelling the 
+// decay of ELISA endpoint titers. 
 //
 
+// Define the decay functions used in our analysis
 functions {
-  real decay_linear(real time,real k1,real k2, real tc){
-    return -k1*time-(k2-k1)*(abs(time-tc)+time-tc)/2;
+// Linear decay model used as a comparison
+  real decay_linear(real time,real k1){
+    return -k1*time;
   }
+// 2 phase decay model implimented as our primary and best fitting model
   real decay_exp(real time,real k1,real k2, real f){
     return log10(f*exp(-k1*time)+(1-f)*exp(-k2*time));
   }
 }
-// The input data is a vector 'y' of length 'N'.
+// The input data for our model.
+
 data {
-  int N;
-  vector[N] y_n;
-  vector[N] time;
-  vector[N] s_n;
-  int n_n[N];
-  int num_doses;
-  int num_form;
-  int num_studies;
-  int study_ind[N];
-  int dose_ind[N];
-  vector[N] form_ind;
+  int N;              // Number of Datapoints
+  vector[N] y_n;      // Reported GMT for each datapoint
+  vector[N] time;     // Time of GMT post peak (as defined in manuscript)
+  vector[N] s_n;      // Standard deviation at each datapoint
+  int n_n[N];         // Number of samples at each datapoint
+  int num_doses;      // Number of vaccine regimens
+  int num_form;       // Number of formulations used
+  int num_studies;    // Number of studies included
+  int study_ind[N];   // Study index for each datapoint
+  int dose_ind[N];    // Index of dosing regimen for each datapoint
+  vector[N] form_ind; // Index of formulations 
 }
+
+// Transform some of the data for various model inputs
 transformed data{
-  vector[N] S_n;
-  vector[N] n_n_1;
+  vector[N] S_n;     // Sum of squares at each data point
+  vector[N] n_n_1;   // Number of participants minus 1
   for (j in 1:N){
     n_n_1[j]=n_n[j]-1;
     S_n[j]=(n_n_1[j])*pow(s_n[j],2);
   }
 }
-// The parameters accepted by the model. Our model
-// accepts two parameters 'mu' and 'sigma'.
+// The model parameters input into the model.
 parameters {
-  real<lower=0> decay1;
-  real<lower=0,upper=decay1> decay2;
-  real<lower=0,upper=1> tc[num_doses];
-  vector[num_studies] mu_j;
-  real mu_f;
-  vector[num_doses] mu_d;
-  vector<lower=0>[num_doses] sigma_d;
-  real<lower=0> var_s;
+  real<lower=0> decay1;                // Fast decay parameter
+  real<lower=0,upper=decay1> decay2;   // Slow Decay parameter
+  real<lower=0,upper=1> tc[num_doses]; // Proportion of fast decaying antibodies
+  vector[num_studies] mu_j;            // Random effect of each study on GMT
+  real mu_f;                           // Effect of formulation
+  vector[num_doses] mu_d;              // GMT at time 0 for each regimen
+  vector<lower=0>[num_doses] sigma_d;  // Standard deviation of titers per regimen
+  real<lower=0> sigma_s;               // Standard deviation of random effect 
 }
 
+// Transform model parameters into those expressed in the model distributions
 transformed parameters{
-  vector[N] mu_n;
-  vector[N] X_n;
-  vector[N] se_n;
+  vector[N] mu_n;                                 // Sampling Mean
+  vector[N] X_n;                                  // Chi-Square statistic for ratio of sampling variance
+  vector[N] se_n;                                 // Sampling Standard deviation
   for (i in 1:N){
     se_n[i]=sigma_d[dose_ind[i]]*pow(n_n[i],-0.5);
     X_n[i]=S_n[i]/pow(sigma_d[dose_ind[i]],2);
@@ -67,21 +67,21 @@ transformed parameters{
   }
 }
 
-// The model to be estimated. We model the output
-// 'y' to be normally distributed with mean 'mu'
-// and standard deviation 'sigma'.
+// Input the Model parameters
 model {
-  y_n ~ normal(mu_n,se_n);
-  mu_d ~ normal (0,10);
+  y_n ~ normal(mu_n,se_n);     //Fit The observed GMTs to sampling distribution
+  X_n ~ chi_square(n_n_1);     // Fit Observed standard deviations to sampling distribution
+  // Define Priors
+  mu_d ~ normal (0,10);        
   sigma_d ~ lognormal(0,10);
-  mu_j ~ normal (0,pow(var_s,0.5));
-  var_s ~ inv_gamma(1,1);
-  X_n ~ chi_square(n_n_1);
+  mu_j ~ normal (0,sigma_s);
+  sigma_s ~ cauchy(0,1);
   mu_f ~ normal(0,1);
   decay1~normal(0,1);
-  decay2~normal(0,0.1);
+  decay2~normal(0,1);
 }
 
+// Generate R^2 fitted values for model comparison
 generated quantities {
   vector[N] log_lik;
   for (i in 1:N){
