@@ -20,7 +20,7 @@ datatab <- read_csv("Output/Data/ELISA_full_set_update.csv",show_col_types = FAL
 # Fit the logistic model to both datasets ---------------------------------
 
 #Generate random sample used for evaluating expectations quickly
-sample_size=100
+sample_size=5000
 sample=rnorm(sample_size)
 
 # Define the model data
