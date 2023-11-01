@@ -23,11 +23,11 @@ datatab <- read_csv("Output/Data/ELISA_decay.csv") %>%
   mutate(Group=factor(Group))
 
 #Import Decay Immunogenicity data
-q_df<-read_csv('Output/Samples/Decay_quantiles.csv')%>%
+q_df<-read_csv('Output/Figure4/Decay_quantiles.csv')%>%
   mutate(Group=factor(Group))
 
 # Fig4A -------------------------------------------------------------------
-
+# Generate Plot
 plot_decay<-ggplot(data=datatab,
                    aes(x=Time,y=GMT,ymin=LCI,ymax=UCI,color=Group,fill=Group))+
   geom_point(aes(shape=label),size=2,alpha=0.8)+
@@ -56,9 +56,8 @@ plot_decay<-ggplot(data=datatab,
                     values=c(colD2),
                     labels=c('1-Dose','2-Dose (Day-28)','2-Dose (Day-730)','3-Dose'))+
   guides(fill='none',color='none')
-show(plot_decay)
 
-
+#Save Figure
 save_file='Output\\Figures\\longterm_antibody_decay_years.jpg'
 ggsave(save_file,plot_decay,width=10,height=5,dpi=600)
 save_file='Output\\Figures\\longterm_antibody_decay_years.eps'
