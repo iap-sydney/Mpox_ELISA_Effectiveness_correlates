@@ -38,5 +38,5 @@ if (Figures){
   source('Analysis/06_Figure-2.R')
   source('Analysis/06_Figure-3.R')
   source('Analysis/06_Figure-4.R')
-  source('Analysis/07_Supplemetary-Figures.R')
+  source('Analysis/07_Supplementary-Figures.R')
 }
