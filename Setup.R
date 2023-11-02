@@ -3,11 +3,9 @@
 
 
 library(rstan)
-library(bayesplot)
 library(tidyverse)
 library(loo)
 library(ggpubr)
-library(glue)
 library(latex2exp)
 library(nleqslv)
 
