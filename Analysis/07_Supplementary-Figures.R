@@ -62,8 +62,8 @@ plot_prop<-ggplot(data=summary_decay,aes(color=`Number of MVA Doses`,x=`Final Do
         legend.title = element_text(size=12))
 
 ggsave('Output//Figures//supp_4.jpg',
-       plot=summary_decay,
-       width=5,height=4,dpi=1000)
+       plot=plot_prop,
+       width=5,height=4,dpi=300)
 ggsave('Output//Figures//supp_4.pdf',
-       plot=summary_decay,
-       width=5,height=4,dpi=1000)
+       plot=plot_prop,
+       width=5,height=4,dpi=300)
