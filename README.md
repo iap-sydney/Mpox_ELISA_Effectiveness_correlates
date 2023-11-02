@@ -21,3 +21,11 @@ The project is to run from start to finish by executing the `driver.R` script. T
 `driver.R` calls other scripts including `setup.R` and files in the `processing/` and `analysis/` folders.
 
 All data used during the project is contained in the `data/` folder
+
+## Packages required 
+-   rstan
+-   ggpubr
+-   tidyverse
+-   loo
+-   latex2exp
+-   nleqslv
