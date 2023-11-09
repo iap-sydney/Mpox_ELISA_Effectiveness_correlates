@@ -20,8 +20,8 @@ mean_quants<-read_csv('Output/Figure2/Indiv_eff.csv')%>%
 colForm<-c('darkorange2','dodgerblue','dodgerblue4','mediumpurple','mediumpurple4','darkorange2')
 
 #Create Plot
-plot_immunogenicity<-ggplot(datatab,aes(x=label,y=GMT,shape=ELISA,color=col_group,group=Arm)) +
-  geom_point(position=position_dodge(width=0.5),size=2.5) +
+plot_immunogenicity<-ggplot(datatab,aes(x=label,y=GMT,color=col_group,group=Arm)) +
+  geom_point(position=position_dodge(width=0.5),shape=18,size=2.5) +
   facet_grid(cols=vars(Dose),scales='free',space='free') + 
   geom_errorbar(aes(ymin=LCI,ymax=UCI), position=position_dodge(width=0.5)) + 
   geom_hline(data=mean_quants,aes(yintercept=`50%`,color=col_group),alpha=1) + 
@@ -29,8 +29,6 @@ plot_immunogenicity<-ggplot(datatab,aes(x=label,y=GMT,shape=ELISA,color=col_grou
   geom_hline(data=mean_quants,aes(yintercept=`97.5%`,color=col_group),alpha=1,linetype='dashed') +
   theme_classic() +
   labs(y='ELISA endpoint GMT',x='Immunogenicity Study')+
-  scale_shape_manual(values=c(15,16,17),
-                     labels = c('Unspecified', "450nm/0.3",'400nm/0.35')) +
   scale_color_manual(values=colForm) +
   scale_y_continuous(trans='log10') +
   scale_x_discrete(guide = guide_axis(angle = 65))+
@@ -38,9 +36,6 @@ plot_immunogenicity<-ggplot(datatab,aes(x=label,y=GMT,shape=ELISA,color=col_grou
         axis.text=element_text(size=10),
         axis.title=element_text(size=12),
         axis.title.x = element_blank(),
-        legend.position = c(0.88,0.25),
-        legend.text=element_text(size=10),
-        legend.title=element_text(size=12),
         strip.text = element_text(size=12))+
   guides(color='none')
 
