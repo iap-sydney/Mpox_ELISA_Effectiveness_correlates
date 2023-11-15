@@ -153,11 +153,11 @@ E <- rep(0,1000)
 GMTs <- seq(1,4,length.out=N)
 for (i in 1:N){
   for (j in 1:length(E)){
-    E[j] <- mean(1/(1+exp(-slope[j]*(0.5*sample+GMTs[i]-2.5)-Ontercept[j])))
+    E[j] <- mean(1/(1+exp(-slope[j]*(0.5*sample+GMTs[i]-2.5)-Intercept[j])))
   }
   eff_lin_df[,i] <- quantile(E,probs = c(0.025,0.5,0.975))
 }
-eff_lin_df <- as.data.frame(t(eff_df))
+eff_lin_df <- as.data.frame(t(eff_lin_df))
 eff_lin_df$GMT <- GMTs
 write.csv(eff_lin_df,'Output/Figures/Efficacy_quantiles_lin.csv')
 
