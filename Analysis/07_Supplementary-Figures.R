@@ -67,3 +67,22 @@ ggsave('Output//Figures//supp_4.jpg',
 ggsave('Output//Figures//supp_4.pdf',
        plot=plot_prop,
        width=5,height=4,dpi=300)
+
+
+# Generate supp table 4 ---------------------------------------------------
+
+#Import Decay Immunogenicity data
+q_df<-read_csv('Output/Figure4/Decay_quantiles.csv')%>%
+  mutate(Group=factor(Group),Time=Time*12)%>%
+  mutate_at(c('GMT','UCI','LCI'),round)%>%
+  mutate(CI=paste('(',LCI,'.',UCI,')',sep=''))%>%
+  mutate(vals=paste(GMT,CI))%>%
+  select(Time,vals,Group)%>%
+  filter(Time %in% c(1,2,3,6,12,18,24))%>%
+  pivot_wider(values_from = vals,names_from = Time)%>%
+  mutate(Group=c('1-Dose','2-Dose (Day-28)','3-Dose','2-Dose (Day-730)'))%>%
+  write_csv('Output/TableS4.csv')
+
+c(1,5,9,7)
+c('1-Dose','2-Dose (Day-28)','2-Dose (Day-730)','3-Dose')
+
