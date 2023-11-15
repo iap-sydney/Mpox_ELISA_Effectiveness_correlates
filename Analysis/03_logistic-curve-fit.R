@@ -86,3 +86,73 @@ write.csv(eff_df,'Output/Figure3/Efficacy_quantiles.csv')
 
 
 
+# Examine Linear model for significant slope ------------------------------
+
+eff_df<-read_csv("Output//Samples//Combined-Effectiveness-sample.csv")%>%
+  select(`First Generation`,`MVA-BN 1-dose`,`MVA-BN 2-dose`)
+
+gmt_df <- read_csv("Output//Samples//antibody_means.csv")%>%
+  select(`Historic Vaccination`,`MVA-BN 1-dose`,`MVA-BN 2-dose`)
+
+N=nrow(eff_df)
+r <- rep(0,N)
+
+for (i in 1:N){
+  r[i]<-cor(as.numeric(eff_df[i,]),as.numeric(gmt_df[i,]))
+}
+
+write_csv(data.frame(r),'Output/samples/correlation.csv')
+
+
+# Logistic Fit ------------------------------------------------------------
+
+# Define the model data
+data <- list(
+  N = nrow(datatab),
+  y_n = log10(datatab$GMT),
+  s_n= datatab$std,
+  n_n=datatab$Number,
+  num_studies=nlevels(datatab$Study),
+  num_form=nlevels(datatab$Formulation),
+  study_ind=as.integer(datatab$Study),
+  dose_ind=as.integer(datatab$Dose),
+  form_ind=as.integer(datatab$Formulation),
+  J = nrow(df_eff),
+  Num_pop = df_eff$Pop,
+  num_cases=df_eff$Case,
+  num_groups=nlevels(df_eff$group),
+  group_index=as.integer(df_eff$group),
+  num_vaccines=nlevels(df_eff$Vacc_dose)-1,
+  Vaccine_ind=as.integer(df_eff$Vacc_dose),
+  num_vacc_studies=nlevels(df_eff$index),
+  vacc_study_ind=as.integer(df_eff$index)
+)
+
+#Fit the logistic model
+log_fit <- stan(
+  file = "Stan/linear_model.stan",  # Stan program
+  data = data,    # named list of data
+  chains = 4,             # number of Markov chains
+  warmup = warmup,          # number of warmup iterations per chain
+  iter = sampling,            # total number of iterations per chain
+  seed=10,
+  cores=4,
+  control = list(max_treedepth=12,stepsize=0.5,adapt_delta=0.9)
+)
+
+linear_samples <- rstan::extract(log_fit)
+slope<-linear_samples$k
+Intercept<-linear_samples$A
+
+# Parameter estimates -----------------------------------------------------
+
+samples <- rstan::extract(full_fit)
+slope<-samples$k
+Intercept<-samples$A
+mu<-samples$mu_d
+mu_f<-samples$mu_f
+sigma<-samples$sigma_d
+sigma_I<-samples$sigma_s
+sigma_E<-samples$sigma
+
+
