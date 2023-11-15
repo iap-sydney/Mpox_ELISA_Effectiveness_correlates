@@ -6,8 +6,8 @@
 
 // Define the logistic function used to compute the expectation
 functions{
-  real eff(real mu,real k,real A,real sigma,vector sample){
-        return mean(pow(1+exp((sample*sigma+mu-2.5)*(-k)-A),-1));
+  real eff(real mu,real A){
+        return pow(1+exp(-A),-1);
   }
 }
 
@@ -34,10 +34,6 @@ data {
   int Vaccine_ind[J];    // Index of vaccine used
   int num_vacc_studies;  // Number of Efficacy Studies
   int vacc_study_ind[J]; // Index of efficacy study
-  
-  //miscellaneous sample
-  int sample_size;
-  vector[sample_size] sample;
 }
 
 //Transform the immunigenicity data
@@ -57,7 +53,6 @@ parameters {
   vector[num_vaccines] mu_d;
   vector<lower=0>[num_vaccines] sigma_d;
   // Logistic Curve parameters
-  real<lower=0> k;
   real A;
   // Effectiveness parameters
   real<lower=0> sigma_s;
@@ -83,7 +78,7 @@ transformed parameters{
   // Protection using logistic function
   vector[num_vaccines] V;
   for (i in 1:num_vaccines){
-    V[i]=log(1-eff(mu_d[i],k,A,sigma_d[i],sample));
+    V[i]=log(1-eff(mu_d[i],k,A));
   }
   // Effectiveness parameters
   vector<upper=1>[J] r_dose;
@@ -100,12 +95,12 @@ transformed parameters{
 model {
   // Immunogenicity data
   y_n ~ normal(mu_n,se_n);
-  X_n ~ chi_square(n_n_1);
+  mu_d ~ normal (0,10);
   // Priors on Immunogenicity
   sigma_d ~ lognormal(0,10);
   mu_j ~ normal (0,sigma_s);
   sigma_s ~ cauchy(0,1);
-  mu_d ~ normal (0,10);
+  X_n ~ chi_square(n_n_1);
   mu_f ~ normal(0,1);
   // Effectiveness Data
   num_cases ~ binomial(Num_pop, r_dose);
@@ -114,8 +109,7 @@ model {
   sigma ~ cauchy(0,0.25);
   r ~ beta(1,1);
   // Priors on logistic curve
-  k ~ normal(0,10);
-  A ~ logistic(0,1);
+  A ~ normal(0,10);
 }
 
 //Generate log likelihoods for case data.

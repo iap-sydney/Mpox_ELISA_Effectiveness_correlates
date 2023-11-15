@@ -113,4 +113,13 @@ model {
   k ~ normal(0,10);
   A ~ normal(0,10);
 }
+//Generate log likelihoods for case data.
+generated quantities {
+    vector[J] log_lik;
+  {
+    for (i in 1:J){
+      log_lik[i]=binomial_lpmf(num_cases[i]|Num_pop[i],r_dose[i]);
+    }
+  }
+}
 

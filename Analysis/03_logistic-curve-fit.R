@@ -143,6 +143,23 @@ log_fit <- stan(
 linear_samples <- rstan::extract(log_fit)
 slope<-linear_samples$k
 Intercept<-linear_samples$A
+N <- 61
+lin_fit_df <- data.frame(slope,Intercept)
+write.csv(lin_fit_df,'Output/samples/logistic_curve_parameters_GMT.csv')
+
+#Estimate Effectiveness for varying means with fixed standard deviation
+eff_lin_df <- data.frame(row.names = c('LCI','median','UCI'))
+E <- rep(0,1000)
+GMTs <- seq(1,4,length.out=N)
+for (i in 1:N){
+  for (j in 1:length(E)){
+    E[j] <- mean(1/(1+exp(-slope[j]*(0.5*sample+GMTs[i]-2.5)-Ontercept[j])))
+  }
+  eff_lin_df[,i] <- quantile(E,probs = c(0.025,0.5,0.975))
+}
+eff_lin_df <- as.data.frame(t(eff_df))
+eff_lin_df$GMT <- GMTs
+write.csv(eff_lin_df,'Output/Figures/Efficacy_quantiles_lin.csv')
 
 # Parameter estimates -----------------------------------------------------
 
@@ -155,4 +172,17 @@ sigma<-samples$sigma_d
 sigma_I<-samples$sigma_s
 sigma_E<-samples$sigma
 
+
+# Flat fit ----------------------------------------------------------------
+
+flat_fit <- stan(
+  file = "Stan/flat_model.stan",  # Stan program
+  data = data,    # named list of data
+  chains = 4,             # number of Markov chains
+  warmup = warmup,          # number of warmup iterations per chain
+  iter = sampling,            # total number of iterations per chain
+  seed=10,
+  cores=4,
+  control = list(max_treedepth=12,stepsize=0.5,adapt_delta=0.9)
+)
 
