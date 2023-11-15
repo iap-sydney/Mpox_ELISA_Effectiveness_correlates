@@ -1,21 +1,16 @@
 //
-// This Stan program defines a simple model, with a
-// vector of values 'y' modeled as normally distributed
-// with mean 'mu' and standard deviation 'sigma'.
-//
-// Learn more about model development with Stan at:
-//
-//    http://mc-stan.org/users/interfaces/rstan.html
-//    https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
+// This file contains the linear decay model used as a comparator in our decay
+// model Analysis. Full description of code is provided in decay_model.stan.
+// Differences are noted in this file
 //
 
-// The input data is a vector 'y' of length 'N'.
+// Linear decay function
 functions {
   real decay_linear(real time,real k1){
     return -1*k1*time;
   }
 }
-// The input data is a vector 'y' of length 'N'.
+
 data {
   int N;
   vector[N] y_n;
@@ -37,15 +32,14 @@ transformed data{
     S_n[j]=(n_n_1[j])*pow(s_n[j],2);
   }
 }
-// The parameters accepted by the model. Our model
-// accepts two parameters 'mu' and 'sigma'.
+
 parameters {
-  real<lower=0> decay1;
+  real<lower=0> decay1;       //Singular Decay Parameter
   vector[num_studies] mu_j;
   real mu_f;
   vector[num_doses] mu_d;
   vector<lower=0>[num_doses] sigma_d;
-  real<lower=0> var_s;
+  real<lower=0> sigma_s;
 }
 
 transformed parameters{
@@ -63,15 +57,13 @@ transformed parameters{
   }
 }
 
-// The model to be estimated. We model the output
-// 'y' to be normally distributed with mean 'mu'
-// and standard deviation 'sigma'.
+
 model {
   y_n ~ normal(mu_n,se_n);
   mu_d ~ normal (0,10);
   sigma_d ~ lognormal(0,10);
-  mu_j ~ normal (0,pow(var_s,0.5));
-  var_s ~ inv_gamma(1,1);
+  mu_j ~ normal (0,sigma_s);
+  sigma_s ~ cauchy(0,1);
   X_n ~ chi_square(n_n_1);
   mu_f ~ normal(0,1);
   decay1~normal(0,1);

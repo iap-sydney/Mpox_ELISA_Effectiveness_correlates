@@ -146,7 +146,7 @@ q4<-select(q_df,Time,X10,X11,X12)%>%
   rename(LCI=X10,GMT=X11,UCI=X12)%>%
   mutate(Group=9)
 q_df<-rbind(q1,q2,q3,q4)%>%
-  write_csv('Output/Samples/Decay_quantiles.csv')
+  write_csv('Output/Figure4/Decay_quantiles.csv')
 
 # Generate Summaries for Figure 4 -----------------------------------------
 
@@ -217,10 +217,10 @@ mu_h<-mean_df$`Historic Vaccination`
 samples<-rstan::extract(fit1)
 k1<-samples$decay1
 k2<-samples$decay2
-f3<-samples$tc[,7]
+f3<-samples$tc[,9]
 f2<-samples$tc[,5]
 f1<-samples$tc[,1]
-x3<-samples$mu_d[,7]
+x3<-samples$mu_d[,9]
 x2<-samples$mu_d[,5]
 x1<-samples$mu_d[,1]
 gmt0<-x2-x1
@@ -230,8 +230,11 @@ t<-0
 t2<-0
 t3<-0
 for (i in 1:length(f1)){
+  #time from 2 dose peak to one dose peak
   t[i]<-nleqslv(10,function (x) decay_titer(x,gmt0[i],k1[i],k2[i],f2[i]))$x
+  #time from 2 dose delayed peak to one dose peak
   t3[i]<-nleqslv(10,function (x) decay_titer(x,gmt2[i],k1[i],k2[i],f3[i]))$x
+  #time from 2 dose peak to historic vaccination level
   t2[i]<-nleqslv(10,function (x) decay_titer(x,gmt1[i],k1[i],k2[i],f2[i]))$x
 }
 
@@ -246,17 +249,29 @@ x<-samples$mu_d
 f<-samples$tc
 k1<-samples$decay1
 k2<-samples$decay2
+#Fold difference between 2 dose given at day 28 and day 7 at peak
 FD7_28<-10^(x[,5]-x[,8])
+#Fold difference between 2 dose delayed and 2 dose approved at peak
 FD700_28<-10^(x[,9]-x[,5])
+#Fold difference between 3 dose and 2 dose delayed at peak
 FD700_700<-10^(x[,7]-x[,9])
+#Fold difference between 3 dose and 1 dose at peak
 FD700_1<-10^(x[,7]-x[,1])
+
+fds<-tibble(data.frame(FD7_28,FD700_28,FD700_700,FD700_1))%>%
+  write_csv('output/samples/fold_drops_decay_init.csv')
+
+
 
 gmt11<-decay_titer(52,x[,1],k1,k2,f[,1])
 gmt12<-decay_titer(52,x[,5],k1,k2,f[,5])
 gmt13<-decay_titer(52,x[,7],k1,k2,f[,7])
 gmt1730<-decay_titer(52,x[,9],k1,k2,f[,9])
+#Fold difference between 2 dose and 1 dose after 1 year
 FD1_28_0<-10^(gmt11-gmt12)
+#Fold difference between 3 dose and 1 dose after 1 year
 FD1_700_28<-10^(gmt13-gmt12)
+#Fold difference between 3 dose and 2 dose delayed after 1 year
 FD1_700_700<-10^(gmt13-gmt1730)
 
 fds<-tibble(data.frame(FD1_28_0,FD1_700_28,FD1_700_700))%>%

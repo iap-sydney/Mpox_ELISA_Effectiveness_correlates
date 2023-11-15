@@ -20,7 +20,7 @@ datatab <- read_csv("Output/Data/ELISA_full_set_update.csv",show_col_types = FAL
 # Fit the logistic model to both datasets ---------------------------------
 
 #Generate random sample used for evaluating expectations quickly
-sample_size=100
+sample_size=5000
 sample=rnorm(sample_size)
 
 # Define the model data
@@ -83,6 +83,37 @@ for (i in 1:N){
 eff_df <- as.data.frame(t(eff_df))
 eff_df$GMT <- GMTs
 write.csv(eff_df,'Output/Figure3/Efficacy_quantiles.csv')
+
+
+
+# Examine Linear model for significant slope ------------------------------
+
+eff_df<-read_csv("Output//Samples//Combined-Effectiveness-sample.csv")%>%
+  select(`First Generation`,`MVA-BN 1-dose`,`MVA-BN 2-dose`)
+
+gmt_df <- read_csv("Output//Samples//antibody_means.csv")%>%
+  select(`Historic Vaccination`,`MVA-BN 1-dose`,`MVA-BN 2-dose`)
+
+N=nrow(eff_df)
+r <- rep(0,N)
+
+for (i in 1:N){
+  r[i]<-cor(as.numeric(eff_df[i,]),as.numeric(gmt_df[i,]))
+}
+
+write_csv(data.frame(r),'Output/samples/correlation.csv')
+
+# Parameter estimates -----------------------------------------------------
+
+samples <- rstan::extract(full_fit)
+slope<-samples$k
+Intercept<-samples$A
+mu<-samples$mu_d
+mu_f<-samples$mu_f
+sigma<-samples$sigma_d
+sigma_I<-samples$sigma_s
+sigma_E<-samples$sigma
+
 
 
 

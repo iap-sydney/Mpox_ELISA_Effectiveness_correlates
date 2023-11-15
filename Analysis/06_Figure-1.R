@@ -73,7 +73,8 @@ plot_RE<-ggplot(REtib,aes(x=Vaccine,y=X2,ymin=X1,ymax=X3,shape=Study,color=Study
         axis.ticks.x=element_blank(),
         axis.title = element_text(size=12),
         axis.text = element_text(size=10),
-        legend.text = element_text(size=10))
+        legend.text = element_text(size=10),
+        plot.margin = unit(c(5.5,10,5.5,10),'points'))
 
 #Save Figure
 ggsave('Output/Figure1/Fig1B.pdf',

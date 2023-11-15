@@ -5,7 +5,7 @@
 
 // The input data consists of vectors of case and population. 
 // Included is the disaggragation index (group_ind),
-// vaccine inex (vaccine_ind) and study index (study_ind)
+// vaccine index (vaccine_ind) and study index (study_ind)
 data {
   int J;
   int num_cases[J];
@@ -19,7 +19,7 @@ data {
 }
 
 // This model consists of a base infection rate, r, for each group.
-// And an auxillary parameter,A, for the effectiveness fo consistency in analysis
+// And an auxillary parameter,A, for the effectiveness for consistency in analysis
 // A=exp(R_v)
 parameters {
   real<lower=0,upper=1> r[num_groups];
@@ -50,6 +50,7 @@ transformed parameters{
 model {
   num_cases ~ binomial(Num_pop, r_dose);
   p_s ~ normal(0,sigma);
+  // Priors
   A ~ uniform(0,1);
   sigma ~ cauchy(0,0.25);
   r ~ beta(1,1);
