@@ -217,10 +217,10 @@ mu_h<-mean_df$`Historic Vaccination`
 samples<-rstan::extract(fit1)
 k1<-samples$decay1
 k2<-samples$decay2
-f3<-samples$tc[,7]
+f3<-samples$tc[,9]
 f2<-samples$tc[,5]
 f1<-samples$tc[,1]
-x3<-samples$mu_d[,7]
+x3<-samples$mu_d[,9]
 x2<-samples$mu_d[,5]
 x1<-samples$mu_d[,1]
 gmt0<-x2-x1
@@ -232,7 +232,7 @@ t3<-0
 for (i in 1:length(f1)){
   #time from 2 dose peak to one dose peak
   t[i]<-nleqslv(10,function (x) decay_titer(x,gmt0[i],k1[i],k2[i],f2[i]))$x
-  #time from 3 dose peak to one dose peak
+  #time from 2 dose delayed peak to one dose peak
   t3[i]<-nleqslv(10,function (x) decay_titer(x,gmt2[i],k1[i],k2[i],f3[i]))$x
   #time from 2 dose peak to historic vaccination level
   t2[i]<-nleqslv(10,function (x) decay_titer(x,gmt1[i],k1[i],k2[i],f2[i]))$x
@@ -249,7 +249,7 @@ x<-samples$mu_d
 f<-samples$tc
 k1<-samples$decay1
 k2<-samples$decay2
-#Fold difference between 2 dose and 1 dose at peak
+#Fold difference between 2 dose given at day 28 and day 7 at peak
 FD7_28<-10^(x[,5]-x[,8])
 #Fold difference between 2 dose delayed and 2 dose approved at peak
 FD700_28<-10^(x[,9]-x[,5])
@@ -257,6 +257,11 @@ FD700_28<-10^(x[,9]-x[,5])
 FD700_700<-10^(x[,7]-x[,9])
 #Fold difference between 3 dose and 1 dose at peak
 FD700_1<-10^(x[,7]-x[,1])
+
+fds<-tibble(data.frame(FD7_28,FD700_28,FD700_700,FD700_1))%>%
+  write_csv('output/samples/fold_drops_decay_init.csv')
+
+
 
 gmt11<-decay_titer(52,x[,1],k1,k2,f[,1])
 gmt12<-decay_titer(52,x[,5],k1,k2,f[,5])
