@@ -57,7 +57,7 @@ parameters {
   vector[num_vaccines] mu_d;
   vector<lower=0>[num_vaccines] sigma_d;
   // Logistic Curve parameters
-  real<lower=0> k;
+  real k;
   real A;
   // Effectiveness parameters
   real<lower=0> sigma_s;
