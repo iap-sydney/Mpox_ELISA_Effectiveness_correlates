@@ -74,9 +74,7 @@ transformed parameters{
   for (i in 1:N){
     se_n[i]=sigma_d[dose_ind[i]]*pow(n_n[i],-0.5);
     X_n[i]=S_n[i]/pow(sigma_d[dose_ind[i]],2);
-    if (form_ind[i]==3){
-      mu_n[i]=mu_j[study_ind[i]]+mu_d[dose_ind[i]];
-    } else if (form_ind[i]==2){
+    if (form_ind[i]==1){
       mu_n[i]=mu_j[study_ind[i]]+mu_d[dose_ind[i]]+mu_f;
     } else {
       mu_n[i]=mu_j[study_ind[i]]+mu_d[dose_ind[i]];
@@ -102,12 +100,12 @@ transformed parameters{
 model {
   // Immunogenicity data
   y_n ~ normal(mu_n,se_n);
-  mu_d ~ normal (0,10);
+  X_n ~ chi_square(n_n_1);
   // Priors on Immunogenicity
   sigma_d ~ lognormal(0,10);
   mu_j ~ normal (0,sigma_s);
   sigma_s ~ cauchy(0,1);
-  X_n ~ chi_square(n_n_1);
+  mu_d ~ normal (0,10);
   mu_f ~ normal(0,1);
   // Effectiveness Data
   num_cases ~ binomial(Num_pop, r_dose);
